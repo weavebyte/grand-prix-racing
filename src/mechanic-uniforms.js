@@ -1,0 +1,12 @@
+import mclaren from '../assets/people/mechanics/mclaren.png';
+import ferrari from '../assets/people/mechanics/ferrari.png';
+import mercedes from '../assets/people/mechanics/mercedes.png';
+import redbull from '../assets/people/mechanics/redbull.png';
+import aston from '../assets/people/mechanics/aston.png';
+import williams from '../assets/people/mechanics/williams.png';
+import alpine from '../assets/people/mechanics/alpine.png';
+import haas from '../assets/people/mechanics/haas.png';
+import racingbulls from '../assets/people/mechanics/racingbulls.png';
+import audi from '../assets/people/mechanics/audi.png';
+import cadillac from '../assets/people/mechanics/cadillac.png';
+export const MECHANIC_UNIFORMS={mclaren,ferrari,mercedes,redbull,aston,williams,alpine,haas,racingbulls,audi,cadillac};

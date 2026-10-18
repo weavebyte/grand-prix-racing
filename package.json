@@ -1,0 +1,17 @@
+{
+  "name": "my-f1-grand-prix",
+  "version": "0.9.6",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/main.js --bundle --loader:.hdr=binary --loader:.jpg=dataurl --loader:.png=dataurl --loader:.webp=dataurl --loader:.svg=dataurl --format=iife --target=es2020 --minify --legal-comments=eof --outfile=game.js",
+    "test": "node --test tests/*.test.mjs",
+    "build:pages": "node scripts/build-pages.mjs"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.10"
+  }
+}

@@ -1,0 +1,12 @@
+import mclaren from '../assets/people/mechanics/mclaren-run.png';
+import ferrari from '../assets/people/mechanics/ferrari-run.png';
+import mercedes from '../assets/people/mechanics/mercedes-run.png';
+import redbull from '../assets/people/mechanics/redbull-run.png';
+import aston from '../assets/people/mechanics/aston-run.png';
+import williams from '../assets/people/mechanics/williams-run.png';
+import alpine from '../assets/people/mechanics/alpine-run.png';
+import haas from '../assets/people/mechanics/haas-run.png';
+import racingbulls from '../assets/people/mechanics/racingbulls-run.png';
+import audi from '../assets/people/mechanics/audi-run.png';
+import cadillac from '../assets/people/mechanics/cadillac-run.png';
+export const MECHANIC_RUNS={mclaren,ferrari,mercedes,redbull,aston,williams,alpine,haas,racingbulls,audi,cadillac};

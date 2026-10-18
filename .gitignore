@@ -1,0 +1,6 @@
+node_modules/
+game.js
+.DS_Store
+.env
+.env.*
+*.log

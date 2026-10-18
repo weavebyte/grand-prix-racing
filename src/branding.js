@@ -1,0 +1,22 @@
+import logo0 from '../assets/logos/mercedes.webp';
+import logo1 from '../assets/logos/ferrari-color.webp';
+import logo2 from '../assets/logos/mclaren.webp';
+import logo3 from '../assets/logos/redbull.webp';
+import logo4 from '../assets/logos/racingbulls.webp';
+import logo5 from '../assets/logos/alpine.webp';
+import logo6 from '../assets/logos/haas.webp';
+import logo7 from '../assets/logos/audi.webp';
+import logo8 from '../assets/logos/williams.webp';
+import logo9 from '../assets/logos/aston.webp';
+import logo10 from '../assets/logos/cadillac.webp';
+export const TEAM_LOGOS={mercedes:logo0,ferrari:logo1,mclaren:logo2,redbull:logo3,racingbulls:logo4,alpine:logo5,haas:logo6,audi:logo7,williams:logo8,aston:logo9,cadillac:logo10};
+export const SPONSORS={mclaren:"Mastercard",ferrari:"HP",mercedes:"PETRONAS",redbull:"ORACLE",aston:"aramco",williams:"ATLASSIAN",alpine:"BWT",haas:"TGR",racingbulls:"VISA",audi:"Revolut",cadillac:"Cadillac"};
+
+import sponsor0 from '../assets/sponsors/mastercard.svg';
+import sponsor1 from '../assets/sponsors/hp.svg';
+import sponsor2 from '../assets/sponsors/atlassian.svg';
+import sponsor3 from '../assets/sponsors/toyota.svg';
+import sponsor4 from '../assets/sponsors/visa.svg';
+import sponsor5 from '../assets/sponsors/revolut.svg';
+import sponsor6 from '../assets/sponsors/cadillac.svg';
+export const SPONSOR_LOGOS={mclaren:sponsor0,ferrari:sponsor1,williams:sponsor2,haas:sponsor3,racingbulls:sponsor4,audi:sponsor5,cadillac:sponsor6};

@@ -1,0 +1,11 @@
+import {build} from 'esbuild';
+import {mkdir,copyFile,cp,writeFile,rm} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+const root=fileURLToPath(new URL('../',import.meta.url)),out=path.join(root,'docs');
+await rm(out,{recursive:true,force:true});await mkdir(out,{recursive:true});
+await build({absWorkingDir:root,entryPoints:['src/main.js'],bundle:true,format:'iife',target:'es2020',minify:true,legalComments:'eof',outfile:'docs/game.js',assetNames:'assets/[name]-[hash]',loader:{'.hdr':'binary','.jpg':'file','.png':'file','.webp':'file','.svg':'file'}});
+for(const file of ['index.html','style.css'])await copyFile(path.join(root,file),path.join(out,file));
+for(const dir of ['drivers','circuits'])await cp(path.join(root,'assets',dir),path.join(out,'assets',dir),{recursive:true});
+await writeFile(path.join(out,'.nojekyll'),'');
+console.log('GitHub Pages build ready in docs/');

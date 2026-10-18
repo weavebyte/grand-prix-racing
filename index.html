@@ -1,0 +1,28 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>나의 F1 · 그랑프리</title><link rel="stylesheet" href="style.css"></head><body>
+<canvas id="world" aria-label="운전석에서 보는 3D 경주장"></canvas>
+<main id="menu" class="overlay menu">
+ <div class="garage">
+  <header class="garage-head"><div><div class="eyebrow">나의 F1 / WORLD TOUR</div><h1>F1 <span>GRAND PRIX</span></h1><p>실제 선수를 고르고, 키보드로 나만의 레이스를 시작해요.</p></div><div class="version">KEYBOARD<br>드라이버 에디션<br><b>v0.9.6</b></div></header>
+  <div class="setup-grid">
+   <section class="setup-card"><h2><span>01</span> 팀을 골라요 <button id="compare" class="text-button">능력치 비교 ↗</button></h2><div id="teams" class="teams" role="group" aria-label="팀 선택"></div><div class="selected-team"><div><strong id="teamName"></strong><small id="teamTag"></small></div><div id="teamStats"></div></div></section>
+   <section class="setup-card"><h2><span>02</span> 내가 될 드라이버</h2><div id="drivers" class="drivers" role="group" aria-label="드라이버 선택"></div><p class="micro">스피드 → 가속·최고속도<br>차량 제어 → 코너링 · 빗길 → 젖은 노면 접지력<br>타이어 관리 → 마모 속도</p><p class="rating-note">팀·드라이버 능력치는 재미를 위한 게임 설정이며 실제 실력 순위가 아니에요.</p></section>
+   <section class="setup-card course-card"><h2><span>03</span> 오늘의 그랑프리</h2><div id="circuits" class="circuits" role="group" aria-label="나라별 코스"></div><figure class="venue-photo"><img id="venuePhoto" alt="실제 경주장 사진"><figcaption>실제 경주장 사진 · Formula 1</figcaption></figure><div class="course-preview"><canvas id="courseMap" width="300" height="180" aria-label="선택한 코스 전체 지도"></canvas><div><strong id="courseName"></strong><small id="courseInfo"></small></div></div><p class="micro">사진은 실제 경주장이에요.<br>달리는 코스는 실제 장소를 참고한 3D 창작 코스예요.</p></section>
+  </div>
+  <div class="race-settings"><div class="modes" role="group" aria-label="경기 모드"><button data-mode="race" aria-pressed="true" class="chosen">🏁 선수들과 경주 <small>8대 · 2바퀴</small></button><button data-mode="time" aria-pressed="false">⏱ 기록 도전 <small>혼자 · 2바퀴</small></button></div><label>날씨<select id="weather"><option value="dynamic">☀ → ☂ 변화하는 날씨</option><option value="clear">☀ 맑음</option><option value="rain">☂ 비</option></select></label><label>출발 타이어<select id="tyre"><option value="slick">슬릭 · 마른 길에 빠르게</option><option value="wet">웨트 · 빗길에 안정적으로</option></select></label><button id="start" class="primary">레이스 시작 →</button></div>
+  <div class="menu-bottom"><span>↑ W 가속 · ↓ S Space 브레이크 · ← → A D 조향 · P 피트 · Esc 쉬기</span><span>비공식 팬 게임 · <a href="https://www.formula1.com/en/teams" target="_blank" rel="noreferrer">팀·선수 및 사진 출처</a></span></div>
+ </div>
+</main>
+<div id="hud" hidden>
+ <div class="race-heading"><small id="modeLabel"></small><strong id="driverLabel"></strong><span id="teamLabel"></span></div>
+ <div class="race-actions"><button id="sound">소리 켜기</button><button id="pause">Ⅱ 쉬기</button></div>
+ <div class="race-stats"><div><small id="rankLabel">순위</small><strong id="rank"></strong></div><div><small>바퀴</small><strong id="lap"></strong></div><div><small>경기 시간</small><strong id="timer"></strong></div></div>
+ <aside class="minimap"><div><strong id="mapName"></strong><small>전체 코스</small></div><canvas id="minimap" width="260" height="190" aria-label="전체 코스와 모든 자동차의 위치"></canvas><p><span class="me-dot">▲</span> 나 <span class="others-dot">■</span> 다른 자동차 <span>□ 출발선</span></p></aside>
+ <div class="conditions"><span id="engineLabel">엔진 경고 0 / 3</span><span id="weatherLabel"></span><span id="tyreLabel"></span><span id="draftLabel"></span></div>
+ <div id="notice" role="status"></div><div id="countdown"></div><div id="recovery" hidden></div>
+ <div class="dashboard"><div class="dash-speed"><b id="speed">0</b><small>KM/H</small><span id="gear">N</span></div><div class="rpm-track"><i id="rpm"></i></div><div class="telemetry"><span>타이어 <b id="wear">100%</b></span><span>차 상태 <b id="damage">100%</b></span><span>연료 <b id="fuel">100%</b></span></div></div>
+ <div class="keyboard-help"><div><kbd data-key-action="gas">↑ W</kbd><span>가속</span><kbd data-key-action="brake">↓ S SPACE</kbd><span>브레이크</span></div><div><kbd data-key-action="left">← A</kbd><kbd data-key-action="right">→ D</kbd><span>방향</span><button id="pit">P · 피트 예약</button></div></div>
+</div>
+<div id="dialog" class="overlay" hidden><section class="dialog-card"><div class="eyebrow">F1 GRAND PRIX</div><h2 id="dialogTitle"></h2><p id="dialogText"></p><button id="resume" class="primary">계속 달리기 →</button><button id="retry">같은 설정으로 다시</button><button id="home">차고로 돌아가기</button></section></div>
+<div id="comparison" class="overlay" hidden><section class="comparison-card" role="dialog" aria-modal="true" aria-labelledby="compareTitle"><div class="comparison-head"><div><div class="eyebrow">TEAM PERFORMANCE</div><h2 id="compareTitle">어떤 팀이 내 스타일일까요?</h2></div><button id="closeCompare">닫기 ✕</button></div><p>100점 기준 게임용 수치예요. 높을수록 해당 능력이 좋아요. 선택한 행이 강조돼요.</p><div class="table-scroll"><table><thead><tr><th>팀</th><th>최고속도</th><th>가속</th><th>코너링</th><th>제동</th><th>특징</th></tr></thead><tbody id="comparisonBody"></tbody></table></div></section></div>
+<div id="error" class="overlay" hidden><section class="dialog-card"><h2>게임 화면을 열지 못했어요</h2><p id="errorText"></p></section></div>
+<script src="game.js"></script></body></html>
