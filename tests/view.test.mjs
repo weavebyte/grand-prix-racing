@@ -12,7 +12,8 @@ const {WorldView}=await import('data:text/javascript;base64,'+Buffer.from(result
 test('opponent cars can be built with four rolling wheels before a race starts',()=>{
  const view=Object.create(WorldView.prototype);
  view.sphere=new THREE.SphereGeometry(.5,8,6);view.cylinder=new THREE.CylinderGeometry(.5,.5,1,8);view.rounded=new THREE.BoxGeometry(1,1,1);view.materials=new Map();view.rubberMaterial=new THREE.MeshStandardMaterial();
- const car=view.makeCar('#ff6600');assert.equal(car.isGroup,true);assert.equal(car.userData.tyres.length,4);
+ const car=view.makeCar('#ff6600');assert.equal(car.isGroup,true);assert.equal(car.userData.tyres.length,4);assert.equal(car.children.filter(o=>o.userData.aero==='front-wing').length,3);assert.equal(car.children.filter(o=>o.userData.aero==='rear-wing').length,2);
+ const shell=view.carShell(new THREE.Group(),[[-1,.5,0,1],[0,.5,0,1],[1,.5,0,1]],'#ff6600');assert.ok(shell.geometry.attributes.normal.getX(16)>.9);shell.geometry.dispose();
  view.animateTyres(car,10,.1,.5);
  for(const tyre of car.userData.tyres){assert.ok(tyre.userData.spin.rotation.x>0);assert.equal(tyre.rotation.y,tyre.userData.front?-.11:0)}
  car.traverse(o=>{if(o.userData.ownedGeometry)o.geometry.dispose()});

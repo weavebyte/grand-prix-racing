@@ -99,7 +99,7 @@ export class WorldView{
   // Steel catch fencing, narrow posts, and horizontal guardrails.
   for(let i=0;i<track.frames.length;i+=4){const f=track.sample(i*track.step),yaw=Math.atan2(f.tangent.x,f.tangent.z);for(const side of [-1,1]){const q=f.p.clone().addScaledVector(f.right,side*(roadHalf+1.65));put(q.x,q.y+1.7,q.z,.09,3.4,.09,0x7e878c,0,'cylinder');for(const yy of [1.6,2.2,2.8,3.3])put(q.x,q.y+yy,q.z,.025,.025,track.step*4.02,0x8e979b,yaw)}}
   const dummy=new THREE.Object3D();for(const {color,shape,items} of this.batches.values()){const geometry=shape==='sphere'?this.sphere:shape==='cylinder'?this.cylinder:shape==='cone'?this.cone:this.geometry;let material=this.material(color);if(color===this.config.ground){material=new THREE.MeshStandardMaterial({color,map:this.grass,roughness:1})}if(color===0x58aebc){material=new THREE.MeshStandardMaterial({color:0x317a8b,roughness:.17,metalness:.45})}const mesh=new THREE.InstancedMesh(geometry,material,items.length);if(color===this.config.ground||color===0x58aebc)mesh.userData.ownedMaterial=true;mesh.castShadow=shape!=='sphere'||color!==0xf0f1f2;mesh.receiveShadow=true;items.forEach(([x,y,z,w,h,d,rot],i)=>{dummy.position.set(x,y,z);dummy.rotation.set(0,rot,0);dummy.scale.set(w,h,d);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix)});mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();this.environment.add(mesh)}this.batches=null;
-  this.botModels=bots.map(b=>{const g=this.makeCar(TEAMS[b.team].color,b.team);this.cars.add(g);return g});this.buildCockpit(TEAMS[team].color,driver);this.brandCar(this.cockpit,team,true);this.buildMechanics(TEAMS[team].color,TEAMS[team].id);this.buildSmoke();this.resize();
+  this.botModels=bots.map(b=>{const g=this.makeCar(TEAMS[b.team].color,b.team);this.cars.add(g);return g});this.buildCockpit(TEAMS[team].color,team);this.brandCar(this.cockpit,team,true);this.buildMechanics(TEAMS[team].color,TEAMS[team].id);this.buildSmoke();this.resize();
  }
  ribbon(left,right,y,material){const verts=[],norms=[],uvs=[],indices=[],count=this.track.frames.length;for(let i=0;i<=count;i++){const f=this.track.sample(i*this.track.step);for(const offset of [left,right]){const p=f.p.clone().addScaledVector(f.right,offset);verts.push(p.x,p.y+y,p.z);norms.push(0,1,0);uvs.push(offset===left?0:3,i*this.track.step/6)}if(i<count){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2)}}const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(verts,3));geo.setAttribute('normal',new THREE.Float32BufferAttribute(norms,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));geo.setIndex(indices);material.side=THREE.DoubleSide;const mesh=new THREE.Mesh(geo,material);mesh.userData.ownedGeometry=true;mesh.receiveShadow=true;this.environment.add(mesh)}
  tyre(parent,x,y,z,r,width){
@@ -148,7 +148,7 @@ export class WorldView{
   else if(SPONSOR_LOGOS[t.id])texture=new THREE.TextureLoader().load(SPONSOR_LOGOS[t.id]);
   else{
    const canvas=document.createElement('canvas');canvas.width=512;canvas.height=256;const ctx=canvas.getContext('2d');
-   ctx.clearRect(0,0,512,256);ctx.fillStyle=t.id==='aston'?'#70c7db':t.id==='alpine'?'#f7a5cf':t.id==='mercedes'?'#36dfcd':'#ff594d';ctx.font=t.id==='redbull'?'66px Arial':'bold 70px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(SPONSORS[t.id],256,128,480);texture=new THREE.CanvasTexture(canvas);
+   ctx.clearRect(0,0,512,256);ctx.fillStyle=t.id==='aston'?'#70c7db':t.id==='alpine'?'#f7a5cf':t.id==='mercedes'?'#36dfcd':t.id==='redbull'?'#ffffff':'#ff594d';ctx.font=t.id==='redbull'?'66px Arial':'bold 70px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(SPONSORS[t.id],256,128,480);texture=new THREE.CanvasTexture(canvas);
   }
   texture.colorSpace=THREE.SRGBColorSpace;texture.anisotropy=8;
   const material=new THREE.MeshBasicMaterial({map:texture,color:kind==='logo'&&t.id!=='ferrari'?(t.id==='redbull'?'#e52332':t.color):0xffffff,transparent:true,alphaTest:.1,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,toneMapped:false});
@@ -168,31 +168,58 @@ export class WorldView{
   }else{
    decal('sponsor',.5,1.055,2.082,.30,.25);
    decal('logo',-.5,1.055,2.083,.46,.24);
-   decal('logo',0,.9,-.85,.43,.3,-Math.PI/2);
+   decal('logo',0,.64,-1.15,.30,.4,-Math.PI/2);
    for(const side of [-1,1]){
-    decal('sponsor',side*.925,.57,.55,.5,.35,0,side*Math.PI/2);
-    decal('logo',side*.821,.75,1.8,.42,.32,0,side*Math.PI/2);
+    decal('sponsor',side*.827,.62,.45,1.12,.25,0,side*Math.PI/2);
+    decal('logo',side*.265,.94,.82,.64,.25,0,side*Math.PI/2);
    }
   }
  }
 
+ carShell(parent,sections,color,x=0){
+  const vertices=[],indices=[],segments=16;
+  sections.forEach(([z,w,bottom,top])=>{for(let j=0;j<segments;j++){const angle=j/segments*Math.PI*2;vertices.push(x+Math.cos(angle)*w,(bottom+top)/2+Math.sin(angle)*(top-bottom)/2,z)}});
+  for(let i=0;i<sections.length-1;i++)for(let j=0;j<segments;j++){const a=i*segments+j,b=i*segments+(j+1)%segments,c=a+segments,d=b+segments;indices.push(a,b,c,b,d,c)}
+  for(let j=1;j<segments-1;j++){indices.push(0,j+1,j);const end=(sections.length-1)*segments;indices.push(end,end+j,end+j+1)}
+  const geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3));geometry.setIndex(indices);geometry.computeVertexNormals();
+  const mesh=new THREE.Mesh(geometry,this.material(color));mesh.userData.ownedGeometry=true;mesh.castShadow=true;mesh.receiveShadow=true;parent.add(mesh);return mesh;
+ }
  makeCar(color,teamIndex=null){
-  const g=new THREE.Group();
-  this.shape(g,this.sphere,0,.55,0,1.25,.65,4.3,color);
-  this.cube(g,0,.35,-2.1,1.9,.08,.65,color);this.cube(g,0,1.05,1.8,1.9,.28,.55,color);
+  const g=new THREE.Group(),redbull=teamIndex!==null&&TEAMS[teamIndex].id==='redbull',paint=redbull?'#101827':color,carbon='#14171c',accent=redbull?'#e52332':color;
+  g.userData.referenceStyle=true;
+  this.cube(g,0,.24,.15,1.82,.065,3.65,carbon);
+  this.carShell(g,[[-2.3,.08,.28,.39],[-1.8,.15,.32,.5],[-.9,.23,.35,.68],[-.4,.34,.32,.79],[.65,.3,.3,.85],[1.65,.13,.25,.48]],paint);
+  if(redbull)this.carShell(g,[[-2.31,.081,.28,.4],[-1.9,.14,.32,.48],[-1.6,.17,.35,.54]],'#f5c629');
   for(const side of [-1,1]){
-   this.cube(g,side*.78,.7,1.8,.07,.6,.65,0x22272c);
-   this.shape(g,this.sphere,side*.62,.55,.55,.6,.55,1.8,color);
-   for(const z of [-1.3,1.3])this.tyre(g,side*.9,.44,z,.42,.4);
+   this.carShell(g,[[-.65,.14,.37,.66],[-.35,.30,.32,.79],[.45,.30,.3,.76],[1.1,.19,.28,.58],[1.5,.08,.25,.43]],paint,side*.53);
+   this.shape(g,this.sphere,side*.55,.65,-.56,.40,.17,.07,carbon);
+   this.cube(g,side*.87,.29,.25,.045,.1,2.9,carbon);
+   for(const z of [-1.42,1.36]){
+    this.tyre(g,side*1.02,.43,z,.42,z<0?.36:.46);
+    for(const yy of [.35,.51])this.tube(g,[[side*.22,yy+.05,z+.2],[side*.97,.43,z],[side*.24,yy,z-.28]],.016,carbon);
+   }
+   this.cube(g,side*1.1,.34,-2.13,.055,.35,.72,carbon);
+   this.cube(g,side*.9,.99,1.82,.05,.57,.65,carbon);
+   this.cube(g,side*.31,.8,1.76,.04,.5,.28,carbon);
+   this.tube(g,[[side*.29,.78,-.4],[side*.57,.83,-.6]],.018,carbon);
+   this.shape(g,this.sphere,side*.61,.84,-.59,.22,.09,.12,paint);
   }
-  this.shape(g,this.sphere,0,.8,.15,.65,.45,1.1,0x171c22);
-  this.shape(g,this.sphere,0,1.03,.15,.42,.48,.48,color);
-  this.shape(g,this.sphere,0,1.08,-.04,.35,.12,.12,0x101b29);
+  for(let i=0;i<3;i++){const flap=this.cube(g,0,.22+i*.07,-2.35+i*.2,2.18-i*.08,.045,.26,i===2?accent:carbon);flap.rotation.x=-.12;flap.userData.aero='front-wing';}
+  for(let i=0;i<2;i++){const flap=this.cube(g,0,1.04+i*.17,1.78+i*.11,1.8,.065,.4,carbon);flap.rotation.x=.13;flap.userData.aero='rear-wing';}
+  for(let i=-3;i<=3;i++)this.cube(g,i*.18,.28,1.75,.025,.19,.5,carbon);
+  this.shape(g,this.sphere,0,.77,-.03,.6,.16,.95,carbon);
+  this.carShell(g,[[.25,.24,.6,1.15],[.62,.24,.5,1.22],[1.3,.13,.34,.7],[1.65,.07,.28,.45]],redbull?'#d6262c':paint);
+  this.shape(g,this.sphere,0,1.13,.27,.26,.25,.14,redbull?'#f5c629':paint);
+  this.shape(g,this.sphere,0,1.13,.19,.16,.15,.035,carbon);
+  this.shape(g,this.sphere,0,.94,-.17,.32,.34,.34,redbull?'#f5c629':color);
+  this.shape(g,this.sphere,0,.96,-.33,.27,.10,.06,'#19212d');
+  this.tube(g,[[-.32,.82,.34],[-.37,1.06,-.3],[0,1.08,-.67],[.37,1.06,-.3],[.32,.82,.34]],.027,carbon);
+  this.tube(g,[[0,1.08,-.67],[0,.72,-.72]],.025,carbon);
   if(teamIndex!==null)this.brandCar(g,teamIndex,false);
   return g;
  }
 
- buildCockpit(color){const g=this.cockpit;g.userData.tyres=[];this.shape(g,this.sphere,0,-.83,-2.3,.46,.28,3,color);this.shape(g,this.sphere,0,-.72,-.9,1.16,.5,1.4,color);for(const side of [-1,1]){this.tyre(g,side*.76,-.74,-1.9,.3,.26);this.tube(g,[[side*.2,-.78,-1],[side*.76,-.74,-1.9]],.023,0x22262b);this.tube(g,[[side*.25,-.75,-2.2],[side*.76,-.74,-1.9]],.018,0x22262b);this.shape(g,this.sphere,side*.48,-.64,-.5,.2,.23,1.1,color)}
+ buildCockpit(color,teamIndex=0){const redbull=TEAMS[teamIndex].id==='redbull',paint=redbull?'#101827':color;const g=this.cockpit;g.userData.tyres=[];this.carShell(g,[[-3.7,.07,-.95,-.84],[-3.1,.13,-.94,-.75],[-2.1,.2,-.94,-.66],[-1.2,.36,-.95,-.57]],paint);if(redbull)this.carShell(g,[[-3.71,.071,-.95,-.83],[-3.1,.131,-.94,-.74]],'#f5c629');this.shape(g,this.sphere,0,-.78,-.9,1.12,.35,1.4,paint);for(let i=0;i<3;i++){const wing=this.cube(g,0,-1.03+i*.055,-3.62+i*.17,2.05-i*.09,.035,.24,i===2&&redbull?'#e52332':'#14171c');wing.rotation.x=-.12;}for(const side of [-1,1]){this.tyre(g,side*.87,-.83,-2.1,.36,.33);this.tube(g,[[side*.2,-.78,-1],[side*.76,-.74,-1.9]],.023,0x22262b);this.tube(g,[[side*.25,-.75,-2.2],[side*.76,-.74,-1.9]],.018,0x22262b);this.shape(g,this.sphere,side*.48,-.64,-.5,.2,.23,1.1,color)}
   this.tube(g,[[-.55,-.43,-.55],[-.62,-.04,-1.08],[-.4,.04,-1.45],[0,.07,-1.54],[.4,.04,-1.45],[.62,-.04,-1.08],[.55,-.43,-.55]],.028,0x30353a);this.tube(g,[[0,.07,-1.54],[0,-.35,-1.55],[0,-.59,-1.4]],.018,0x30353a);
   this.wheel=new THREE.Group();this.wheel.position.set(0,-.36,-.72);g.add(this.wheel);this.cube(this.wheel,0,0,0,.43,.155,.055,0x171e24);this.cube(this.wheel,0,.014,.032,.16,.085,.009,0x08343c);
   for(const side of [-1,1]){this.tube(this.wheel,[[side*.16,.07,0],[side*.235,.09,0],[side*.255,0,0],[side*.22,-.105,0],[side*.15,-.07,0]],.027,0x171b20);this.bareHand(this.wheel,side);for(let j=0;j<3;j++){const b=this.shape(this.wheel,this.cylinder,side*(.12+j*.035),.025,.036,.021,.009,.021,j===0?0xd9504b:j===1?0x85b9ed:0xd7cf77);b.rotation.x=Math.PI/2}}
