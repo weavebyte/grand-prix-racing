@@ -1,5 +1,5 @@
 node_modules/
-game.js
+/game.js
 .DS_Store
 .env
 .env.*
